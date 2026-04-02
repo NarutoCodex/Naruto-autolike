@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FF VIP STORE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg: #050505; --acc: #00ff88; --card: #111; --border: #222; }
+        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; margin: 0; padding-bottom: 80px; }
+        .container { padding: 15px; max-width: 500px; margin: auto; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 20px; margin-bottom: 15px; position: relative; }
+        .btn { width: 100%; padding: 14px; background: var(--acc); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; }
+        
+        /* Modal Style */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card); border: 1px solid var(--acc); padding: 25px; border-radius: 20px; width: 100%; max-width: 350px; }
+        
+        .nav { position: fixed; bottom: 0; width: 100%; background: #000; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #111; }
+        .nav-item { color: #555; text-decoration: none; text-align: center; font-size: 11px; }
+        .nav-item.active { color: var(--acc); }
+        .section { display: none; }
+        .section.active { display: block; }
+    </style>
+</head>
+<body>
+
+<div id="authBox" style="height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div class="card" style="width:100%; text-align:center;">
+        <h2 id="authT" style="color:var(--acc)">LOGIN</h2>
+        <input type="text" id="u" placeholder="Username">
+        <input type="password" id="p" placeholder="Password">
+        <button class="btn" onclick="handleAuth()">PROCEED</button>
+        <p onclick="toggleAuth()" style="font-size:12px; margin-top:15px; cursor:pointer; color:#666;">New? <span style="color:var(--acc)">Create Account</span></p>
+    </div>
+</div>
+
+<div class="container" id="app" style="display:none;">
+    <div id="dashSec" class="section active">
+        <div class="card" style="border-left: 5px solid var(--acc);">
+            <div style="font-size:10px; color:var(--acc)">● LIVE TRACKING</div>
+            <h2 id="statusText" style="margin:10px 0; font-size:18px;">INACTIVE</h2>
+        </div>
+
+        <div id="plansList"></div>
+    </div>
+
+    <div id="accSec" class="section">
+        <div class="card" style="text-align:center;">
+            <h4 id="userDisplay">USERNAME</h4>
+            <button class="btn" style="background:#200; color:#f44;" onclick="location.reload()">LOGOUT</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="buyModal">
+    <div class="modal-content">
+        <h3 style="color:var(--acc); margin-top:0;">Complete Purchase</h3>
+        <input type="number" id="buyUid" placeholder="Enter Free Fire UID">
+        <select id="buyRegion">
+            <option value="India">India</option>
+            <option value="BD">Bangladesh</option>
+            <option value="SG">Singapore</option>
+        </select>
+        <input type="text" id="buyCode" placeholder="Google Play Redeem Code">
+        <button class="btn" onclick="submitPurchase()">DONE / SUBMIT</button>
+        <p onclick="document.getElementById('buyModal').style.display='none'" style="text-align:center; color:#666; cursor:pointer; margin-top:15px;">Cancel</p>
+    </div>
+</div>
+
+<nav class="nav" id="navBar" style="display:none;">
+    <div class="nav-item active" onclick="tab('dashSec', this)"><i class="fa fa-th-large"></i><br>Dashboard</div>
+    <div class="nav-item" onclick="tab('accSec', this)"><i class="fa fa-user-circle"></i><br>Account</div>
+</nav>
+
+<script>
+    let isL = true; let curU = "";
+
+    function toggleAuth() { isL = !isL; document.getElementById('authT').innerText = isL ? "LOGIN" : "SIGNUP"; }
+
+    async function handleAuth() {
+        const u = document.getElementById('u').value.trim();
+        const p = document.getElementById('p').value.trim();
+        const path = isL ? 'login' : 'signup';
+        const res = await fetch(`/api/auth/${path}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p}) });
+        const data = await res.json();
+        if(data.success) { if(isL) { curU = data.user.username; showUI(data.user); } else alert("Created!"); } else alert(data.msg);
+    }
+
+    function showUI(user) {
+        document.getElementById('authBox').style.display='none';
+        document.getElementById('app').style.display='block';
+        document.getElementById('navBar').style.display='flex';
+        document.getElementById('userDisplay').innerText = user.username.toUpperCase();
+        if(user.status === 'active') document.getElementById('statusText').innerText = "ACTIVE ✅";
+        else if(user.status === 'pending') document.getElementById('statusText').innerText = "⏳ PENDING APPROVAL";
+        loadPlans();
+    }
+
+    async function loadPlans() {
+        const res = await fetch('/api/plans'); const plans = await res.json();
+        let h = ''; plans.forEach(p => {
+            h += `<div class="card">
+                <span style="position:absolute; top:10px; right:10px; background:var(--acc); color:black; font-size:10px; padding:3px 8px; border-radius:5px;">${p.tag}</span>
+                <h3>${p.days} DAYS VIP</h3>
+                <div style="font-size:22px; font-weight:bold; color:var(--acc);">₹${p.price}</div>
+                <button class="btn" onclick="openBuyModal()">BUY ACCESS</button>
+            </div>`;
+        });
+        document.getElementById('plansList').innerHTML = h;
+    }
+
+    function openBuyModal() { document.getElementById('buyModal').style.display = 'flex'; }
+
+    async function submitPurchase() {
+        const uid = document.getElementById('buyUid').value;
+        const region = document.getElementById('buyRegion').value;
+        const code = document.getElementById('buyCode').value;
+        if(!uid || !code) return alert("Fill all details!");
+
+        const res = await fetch('/api/request-activation', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ username: curU, uid, region, code })
+        });
+        alert("Request Sent! Status: Pending");
+        location.reload();
+    }
+
+    function tab(id, el) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active'); el.classList.add('active');
+    }
+</script>
+</body>
+</html>
