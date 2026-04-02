@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FF VIP STORE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@700&display=swap');
+        :root { --bg: #050505; --acc: #00ff88; --card: #111; --border: #222; }
+        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; margin: 0; padding-bottom: 90px; }
+        .container { padding: 15px; max-width: 500px; margin: auto; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 20px; margin-bottom: 15px; }
+        .btn-main { width: 100%; padding: 14px; background: var(--acc); color: #000; border: none; border-radius: 10px; font-weight: bold; font-family: 'Orbitron'; cursor: pointer; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: #000; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #111; z-index: 1000; }
+        .nav-item { color: #555; text-decoration: none; text-align: center; font-size: 11px; flex: 1; cursor: pointer; }
+        .nav-item.active { color: var(--acc); }
+        .section { display: none; }
+        .section.active { display: block; }
+        .tg-float { position: fixed; width: 60px; height: 60px; bottom: 100px; right: 20px; background: #0088cc; color: white; border-radius: 50%; text-align: center; font-size: 30px; display: flex; align-items: center; justify-content: center; text-decoration: none; z-index: 1001; }
+    </style>
+</head>
+<body>
+
+<div id="authBox" style="height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div class="card" style="width:100%; max-width:350px; text-align:center;">
+        <h2 id="authT" style="color:var(--acc); font-family:'Orbitron';">LOGIN</h2>
+        <input type="text" id="u" placeholder="Username">
+        <input type="password" id="p" placeholder="Password">
+        <button class="btn-main" onclick="handleAuth()">PROCEED</button>
+        <p onclick="toggleAuth()" id="toggleT" style="font-size:12px; margin-top:15px; color:#666;">New? <span style="color:var(--acc)">Create Account</span></p>
+    </div>
+</div>
+
+<div class="container" id="app" style="display:none;">
+    <div id="dashSec" class="section active">
+        <div class="card" style="border-left: 5px solid var(--acc);">
+            <div style="font-size:10px; color:var(--acc)">● STATUS</div>
+            <h2 id="statusText">INACTIVE</h2>
+            <div id="daysLeft" style="font-size:12px; color:#888;">Purchase a plan</div>
+        </div>
+        <div class="card"><h3>28 DAYS VIP</h3><p>₹90</p><button class="btn-main" onclick="openBuy()">BUY</button></div>
+        <div class="card"><h3>120 DAYS VIP</h3><p>₹320</p><button class="btn-main" onclick="openBuy()">BUY</button></div>
+    </div>
+    
+    <div id="histSec" class="section">
+        <h3>HISTORY</h3>
+        <div class="card">No records.</div>
+    </div>
+
+    <div id="accSec" class="section">
+        <div class="card" style="text-align:center;">
+            <h3 id="userD">USER</h3>
+            <button class="btn-main" style="background:#200; color:#f44;" onclick="location.reload()">LOGOUT</button>
+        </div>
+    </div>
+</div>
+
+<div id="buyModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:2000; align-items:center; justify-content:center; padding:20px;">
+    <div class="card" style="width:100%; max-width:350px;">
+        <h3 style="color:var(--acc)">Buy Access</h3>
+        <input type="number" id="buyUid" placeholder="FF UID">
+        <input type="text" id="buyCode" placeholder="Redeem Code">
+        <button class="btn-main" onclick="submitBuy()">SUBMIT</button>
+        <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none; border:none; color:#666; width:100%; margin-top:10px;">Cancel</button>
+    </div>
+</div>
+
+<nav class="nav" id="navBar" style="display:none;">
+    <div class="nav-item active" onclick="tab('dashSec', this)"><i class="fa fa-home"></i><br>Dashboard</div>
+    <div class="nav-item" onclick="tab('histSec', this)"><i class="fa fa-history"></i><br>History</div>
+    <div class="nav-item" onclick="tab('accSec', this)"><i class="fa fa-user-circle"></i><br>Account</div>
+</nav>
+
+<a href="https://t.me/narutocodex8" class="tg-float" target="_blank"><i class="fab fa-telegram-plane"></i></a>
+
+<script>
+    let isL = true; let curU = "";
+    function toggleAuth() { isL = !isL; document.getElementById('authT').innerText = isL ? "LOGIN" : "SIGNUP"; }
+    async function handleAuth() {
+        const u = document.getElementById('u').value.trim(); const p = document.getElementById('p').value.trim();
+        const path = isL ? 'login' : 'signup';
+        const res = await fetch(`/api/auth/${path}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p}) });
+        const data = await res.json();
+        if(data.success) { if(isL) { curU=u; showUI(data.user); } else alert("Done!"); } else alert(data.msg);
+    }
+
+    function showUI(user) {
+        document.getElementById('authBox').style.display='none'; document.getElementById('app').style.display='block'; document.getElementById('navBar').style.display='flex';
+        document.getElementById('userD').innerText = user.username.toUpperCase();
+        
+        const s = document.getElementById('statusText');
+        const d = document.getElementById('daysLeft');
+
+        if (user.status === 'active') {
+            s.innerText = "ACTIVE ✅"; s.style.color = "#00ff88";
+            const exp = new Date(user.expiryDate);
+            const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24));
+            d.innerText = diff + " Days Remaining";
+        } else if (user.status === 'pending') {
+            s.innerText = "PENDING ⏳"; s.style.color = "orange";
+            d.innerText = "Waiting for approval";
+        } else if (user.status === 'rejected') {
+            s.innerText = "CANCELED ❌"; s.style.color = "red";
+            d.innerText = "Request Rejected";
+        }
+    }
+
+    function openBuy() { document.getElementById('buyModal').style.display='flex'; }
+    async function submitBuy() {
+        const uid = document.getElementById('buyUid').value; const code = document.getElementById('buyCode').value;
+        await fetch('/api/request-active', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:curU, uid, code}) });
+        alert("Sent!"); location.reload();
+    }
+    function tab(id, el) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active'); el.classList.add('active');
+    }
+</script>
+</body>
+</html>
