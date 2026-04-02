@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<body style="background:#000; color:#00ff88; padding:20px; font-family:sans-serif;">
+    <h2>MASTER ADMIN PANEL</h2>
+    <input type="password" id="key" placeholder="Admin Key" style="width:100%; padding:10px; margin-bottom:10px;">
+    <button onclick="loadUsers()" style="padding:10px; width:100%;">LOAD DATA</button>
+
+    <h3>Add Plan</h3>
+    <input type="number" id="d" placeholder="Days">
+    <input type="number" id="pr" placeholder="Price">
+    <button onclick="addP()">Save Plan</button>
+
+    <div id="list" style="margin-top:20px;"></div>
+
+    <script>
+        async function loadUsers() {
+            const k = document.getElementById('key').value;
+            const res = await fetch('/api/admin/all', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k}) });
+            const users = await res.json();
+            let h = ''; users.forEach(u => {
+                h += `<div style="border:1px solid #333; padding:10px;">${u.username} | Status: ${u.status} 
+                <button onclick="upd('${u._id}','active')">Approve</button></div>`;
+            });
+            document.getElementById('list').innerHTML = h;
+        }
+
+        async function addP() {
+            const k = document.getElementById('key').value;
+            const body = { adminKey:k, days:document.getElementById('d').value, price:document.getElementById('pr').value };
+            await fetch('/api/admin/add-plan', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+            alert("Plan Added!");
+        }
+
+        async function upd(id, st) {
+            const k = document.getElementById('key').value;
+            await fetch('/api/admin/update-user', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k, id, status:st}) });
+            alert("Updated!"); loadUsers();
+        }
+    </script>
+</body>
+</html>
