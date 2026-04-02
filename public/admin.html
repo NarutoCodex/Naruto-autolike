@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<body style="background:#000; color:#00ff88; padding:20px; font-family:sans-serif;">
+    <h2>MASTER ADMIN</h2>
+    <input type="password" id="key" placeholder="Admin Secret Key" style="width:100%; padding:10px; margin-bottom:20px; background:#111; color:white; border:1px solid #333;">
+    <button onclick="loadUsers()" style="padding:10px; width:100%; background:#00ff88; border:none; font-weight:bold; cursor:pointer;">LOAD DATA</button>
+
+    <div style="background:#111; padding:15px; margin-top:20px; border-radius:10px;">
+        <h3>Add New Plan</h3>
+        <input type="number" id="d" placeholder="Days">
+        <input type="number" id="p" placeholder="Price">
+        <input type="number" id="op" placeholder="Old Price">
+        <input type="text" id="t" placeholder="Tag (e.g. BEST SELLER)">
+        <button onclick="addP()" style="width:100%; padding:10px;">Save Plan</button>
+    </div>
+
+    <div id="list" style="margin-top:20px;"></div>
+
+    <script>
+        async function loadUsers() {
+            const k = document.getElementById('key').value;
+            const res = await fetch('/api/admin/all', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k}) });
+            const users = await res.json();
+            let h = '<h3>Users List</h3>'; 
+            users.forEach(u => {
+                h += `<div style="border-bottom:1px solid #333; padding:10px; display:flex; justify-content:space-between;">
+                    <span>${u.username} (${u.status})</span> 
+                    <button onclick="upd('${u._id}','active')">Approve</button>
+                </div>`;
+            });
+            document.getElementById('list').innerHTML = h;
+        }
+
+        async function addP() {
+            const k = document.getElementById('key').value;
+            const body = { adminKey:k, days:document.getElementById('d').value, price:document.getElementById('p').value, oldPrice:document.getElementById('op').value, tag:document.getElementById('t').value };
+            await fetch('/api/admin/add-plan', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+            alert("Plan Added!");
+        }
+
+        async function upd(id, st) {
+            const k = document.getElementById('key').value;
+            const uid = prompt("Enter User FF UID:");
+            await fetch('/api/admin/update-user', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k, id, status:st, uid}) });
+            alert("Updated!"); loadUsers();
+        }
+    </script>
+</body>
+</html>
