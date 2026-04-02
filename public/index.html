@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FF AUTOLIKE PRO</title>
+    <style>
+        body { background: #0d1117; color: white; font-family: sans-serif; padding: 20px; text-align: center; }
+        .card { background: #161b22; padding: 20px; border-radius: 15px; border: 1px solid #30363d; margin-bottom: 20px; max-width: 400px; margin: auto; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: #2f81f7; border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; }
+        .news { background: #1d2d50; padding: 10px; border-radius: 10px; border-left: 4px solid #2f81f7; margin-bottom: 20px; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <h2>FF <span style="color: #2f81f7;">AUTOLIKE</span></h2>
+
+    <div id="authBox" class="card">
+        <h3 id="formTitle">Login</h3>
+        <input type="text" id="user" placeholder="Username">
+        <input type="password" id="pass" placeholder="Password">
+        <button class="btn" onclick="handleAuth()">Submit</button>
+        <p onclick="toggleAuth()" style="font-size: 12px; color: #8b949e; cursor: pointer; margin-top: 15px;">New here? Signup</p>
+    </div>
+
+    <div id="dashBox" class="card" style="display:none;">
+        <div class="news">🚀 NEW: 120 Days Offer ₹500 is LIVE!</div>
+        <h4>Welcome, <span id="displayUser"></span></h4>
+        <p id="status">Status: <span style="color: orange;">Checking...</span></p>
+        
+        <input type="number" id="uid" placeholder="Enter Free Fire UID">
+        <select id="region">
+            <option value="ind">India</option>
+            <option value="sg">Singapore</option>
+        </select>
+        <input type="text" id="code" placeholder="Redeem Code / Trans ID">
+        <button class="btn" onclick="request()">Request Activation</button>
+    </div>
+
+    <script>
+        let isLogin = true;
+        let currentUser = "";
+
+        function toggleAuth() {
+            isLogin = !isLogin;
+            document.getElementById('formTitle').innerText = isLogin ? "Login" : "Signup";
+        }
+
+        async function handleAuth() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            const path = isLogin ? 'login' : 'signup';
+            
+            const res = await fetch(`/api/auth/${path}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: u, password: p})
+            });
+            const data = await res.json();
+            alert(data.msg);
+            if(data.success && isLogin) {
+                currentUser = u;
+                showDash(data.user);
+            }
+        }
+
+        function showDash(user) {
+            document.getElementById('authBox').style.display = 'none';
+            document.getElementById('dashBox').style.display = 'block';
+            document.getElementById('displayUser').innerText = user.username;
+            document.getElementById('status').innerText = "Status: " + user.status;
+        }
+
+        async function request() {
+            const uid = document.getElementById('uid').value;
+            const reg = document.getElementById('region').value;
+            const code = document.getElementById('code').value;
+            const res = await fetch('/api/request-active', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: currentUser, uid, region: reg, code})
+            });
+            const data = await res.json();
+            alert(data.msg);
+        }
+    </script>
+</body>
+</html>
