@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FF VIP STORE | AUTOLIKE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@700&display=swap');
+        
+        :root { 
+            --bg: #050505; 
+            --acc: #00ff88; 
+            --card: #111111; 
+            --border: #222222; 
+            --text: #ffffff;
+        }
+
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            padding-bottom: 90px; 
+            overflow-x: hidden;
+        }
+
+        .container { padding: 20px; max-width: 500px; margin: auto; }
+
+        /* Card Styles */
+        .card { 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            border-radius: 20px; 
+            padding: 22px; 
+            margin-bottom: 20px; 
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .btn-main { 
+            width: 100%; 
+            padding: 15px; 
+            background: var(--acc); 
+            color: black; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-family: 'Orbitron', sans-serif;
+            transition: 0.3s;
+        }
+
+        .btn-main:hover { transform: scale(1.02); box-shadow: 0 0 15px var(--acc); }
+
+        input, select { 
+            width: 100%; 
+            padding: 14px; 
+            margin: 10px 0; 
+            background: #000; 
+            border: 1px solid var(--border); 
+            color: white; 
+            border-radius: 12px; 
+            box-sizing: border-box; 
+        }
+
+        /* Navigation Bar */
+        .nav { 
+            position: fixed; 
+            bottom: 0; 
+            width: 100%; 
+            background: rgba(0,0,0,0.95); 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 15px 0; 
+            border-top: 1px solid var(--border); 
+            z-index: 1000;
+        }
+
+        .nav-item { 
+            color: #555; 
+            text-decoration: none; 
+            text-align: center; 
+            font-size: 11px; 
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .nav-item.active { color: var(--acc); }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
+
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Telegram Floating Button */
+        .tg-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 100px;
+            right: 20px;
+            background-color: #0088cc;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 0px 4px 15px rgba(0, 136, 204, 0.4);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        /* History Items */
+        .hist-item { 
+            background: #000; 
+            padding: 15px; 
+            border-radius: 12px; 
+            margin-bottom: 10px; 
+            border: 1px solid #222;
+        }
+
+        .tag { 
+            position: absolute; 
+            top: 15px; 
+            right: 15px; 
+            background: var(--acc); 
+            color: #000; 
+            font-size: 10px; 
+            padding: 4px 10px; 
+            border-radius: 6px; 
+            font-weight: bold; 
+        }
+    </style>
+</head>
+<body>
+
+<div id="authBox" style="height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div class="card" style="width:100%; max-width:380px; text-align:center;">
+        <h2 id="authT" style="color:var(--acc); font-family:'Orbitron';">LOGIN</h2>
+        <input type="text" id="u" placeholder="Username">
+        <input type="password" id="p" placeholder="Password">
+        <button class="btn-main" onclick="handleAuth()">ENTER SYSTEM</button>
+        <p onclick="toggleAuth()" id="toggleTxt" style="font-size:13px; color:#666; margin-top:20px; cursor:pointer;">New? <span style="color:var(--acc)">Create Account</span></p>
+    </div>
+</div>
+
+<div class="container" id="app" style="display:none;">
+    
+    <div id="dashSec" class="section active">
+        <div class="card" style="border-left: 5px solid var(--acc);">
+            <div style="font-size:10px; color:var(--acc); letter-spacing: 1px;">● LIVE STATUS</div>
+            <h2 id="statusText" style="margin:10px 0;">INACTIVE</h2>
+            <div id="daysLeft" style="font-size:12px; color:#888;">No Active Subscription</div>
+        </div>
+
+        <div id="plansList">
+            </div>
+
+        <div class="card">
+            <h4 style="color:var(--acc); margin:0 0 15px 0;"><i class="fa fa-info-circle"></i> MY INFO</h4>
+            <div style="font-size:13px; line-height:2.2;">
+                UID: <span id="dispUid" style="float:right; color:#888;">---</span><br>
+                Region: <span id="dispReg" style="float:right; color:#888;">---</span><br>
+                Daily Likes: <span style="float:right; color:var(--acc)">100</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="histSec" class="section">
+        <h3 style="color:var(--acc); font-family:'Orbitron';">LIKE LOGS</h3>
+        <div id="historyContainer">
+            <div class="card" style="text-align:center; color:#555;">No history available yet.</div>
+        </div>
+    </div>
+
+    <div id="accSec" class="section">
+        <div class="card" style="text-align:center;">
+            <div style="width:80px; height:80px; background:var(--acc); border-radius:50%; margin:0 auto 15px; color:black; font-size:35px; line-height:80px; font-weight:bold;" id="avatar">U</div>
+            <h3 id="userDisplay" style="margin:0">USER</h3>
+            <p id="userType" style="color:#666; font-size:12px; margin-bottom:20px;">VIP Member</p>
+            <button class="btn-main" style="background:#200; color:#f44; border:1px solid #400;" onclick="location.reload()">LOGOUT</button>
+        </div>
+    </div>
+</div>
+
+<nav class="nav" id="navBar" style="display:none;">
+    <div class="nav-item active" onclick="tab('dashSec', this)"><i class="fa fa-th-large"></i>Dashboard</div>
+    <div class="nav-item" onclick="tab('histSec', this)"><i class="fa fa-history"></i>History</div>
+    <div class="nav-item" onclick="tab('accSec', this)"><i class="fa fa-user-circle"></i>Account</div>
+</nav>
+
+<a href="https://t.me/narutocodex8" class="tg-float" target="_blank">
+    <i class="fab fa-telegram-plane"></i>
+</a>
+
+<script>
+    let isLogin = true;
+    let currentUser = null;
+
+    function toggleAuth() {
+        isLogin = !isLogin;
+        document.getElementById('authT').innerText = isLogin ? "LOGIN" : "SIGNUP";
+        document.getElementById('toggleTxt').innerHTML = isLogin ? 'New? <span style="color:var(--acc)">Create Account</span>' : 'Have account? <span style="color:var(--acc)">Login</span>';
+    }
+
+    async function handleAuth() {
+        const u = document.getElementById('u').value.trim();
+        const p = document.getElementById('p').value.trim();
+        if(!u || !p) return alert("Fill details!");
+
+        const path = isLogin ? 'login' : 'signup';
+        try {
+            const res = await fetch(`/api/auth/${path}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username: u, password: p })
+            });
+            const data = await res.json();
+            if(data.success) {
+                if(isLogin) {
+                    currentUser = data.user;
+                    showUI(data.user);
+                } else {
+                    alert("Account Created! Please Login.");
+                    location.reload();
+                }
+            } else { alert(data.msg); }
+        } catch (e) { alert("Server Error!"); }
+    }
+
+    function showUI(user) {
+        document.getElementById('authBox').style.display='none';
+        document.getElementById('app').style.display='block';
+        document.getElementById('navBar').style.display='flex';
+        document.getElementById('userDisplay').innerText = user.username.toUpperCase();
+        document.getElementById('avatar').innerText = user.username[0].toUpperCase();
+        
+        if(user.status === 'active') {
+            document.getElementById('statusText').innerText = "ACTIVE ✅";
+            document.getElementById('statusText').style.color = "var(--acc)";
+            document.getElementById('dispUid').innerText = user.uid || "Pending";
+            document.getElementById('dispReg').innerText = user.region || "India";
+            
+            // Days Left Calculation
+            if(user.expiryDate) {
+                const exp = new Date(user.expiryDate);
+                const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24));
+                document.getElementById('daysLeft').innerText = diff > 0 ? diff + " Days Remaining" : "Expired Today";
+            }
+
+            // Load History if exists
+            if(user.history && user.history.length > 0) {
+                let hHtml = '';
+                user.history.forEach(h => {
+                    hHtml += `<div class="hist-item">
+                        <div><small style="color:#555">${h.date}</small><br><b>Sent Successfully</b></div>
+                        <div style="text-align:right"><span style="color:var(--acc)">+${h.added} Likes</span><br><small>${h.before} → ${h.after}</small></div>
+                    </div>`;
+                });
+                document.getElementById('historyContainer').innerHTML = hHtml;
+            }
+        } else if(user.status === 'pending') {
+            document.getElementById('statusText').innerText = "PENDING APPROVAL ⏳";
+            document.getElementById('statusText').style.color = "orange";
+        }
+        
+        loadPlans();
+    }
+
+    async function loadPlans() {
+        try {
+            const res = await fetch('/api/plans');
+            const plans = await res.json();
+            let html = '';
+            plans.forEach(p => {
+                html += `<div class="card">
+                    <span class="tag">${p.tag || 'VIP'}</span>
+                    <h3 style="margin:0; font-family:'Orbitron'; font-size:16px;">${p.days} DAYS ACCESS</h3>
+                    <div style="font-size:24px; color:var(--acc); font-weight:bold; margin:10px 0;">₹${p.price}</div>
+                    <button class="btn-main" onclick="alert('Submit UID & Redeem Code to @narutocodex8 for activation')">PURCHASE</button>
+                </div>`;
+            });
+            document.getElementById('plansContainer').innerHTML = html;
+        } catch(e) {}
+    }
+
+    function tab(id, el) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        el.classList.add('active');
+    }
+</script>
+</body>
+</html>
