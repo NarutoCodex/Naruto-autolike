@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "crons": [
+    {
+      "path": "/api/cron/daily-likes",
+      "schedule": "30 23 * * *"
+    }
+  ]
+}
