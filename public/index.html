@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FF AUTOLIKE PRO</title>
+    <style>
+        :root { --blue: #2f81f7; --bg: #0d1117; --card: #161b22; --border: #30363d; }
+        body { background: var(--bg); color: white; font-family: sans-serif; padding: 20px; text-align: center; }
+        .card { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid var(--border); max-width: 400px; margin: 20px auto; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: var(--blue); border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .btn:hover { opacity: 0.8; }
+        .news { background: #1d2d50; padding: 12px; border-radius: 10px; border-left: 4px solid var(--blue); margin-bottom: 20px; font-size: 14px; }
+        .toggle-link { font-size: 13px; color: #8b949e; cursor: pointer; margin-top: 15px; display: block; }
+    </style>
+</head>
+<body>
+
+    <h2>FF <span style="color: var(--blue);">AUTOLIKE</span></h2>
+
+    <div id="authBox" class="card">
+        <h3 id="formTitle">Login</h3>
+        <input type="text" id="user" placeholder="Username">
+        <input type="password" id="pass" placeholder="Password">
+        <button class="btn" onclick="handleAuth()">Submit</button>
+        <span class="toggle-link" id="toggleText" onclick="toggleAuth()">New here? Signup</span>
+    </div>
+
+    <div id="dashBox" class="card" style="display:none;">
+        <div class="news">🔥 120 Days Ultimate Offer is LIVE!</div>
+        <h4>Welcome, <span id="displayUser" style="color:var(--blue);"></span></h4>
+        <p id="status">Status: <span style="color: orange;">Loading...</span></p>
+        
+        <input type="number" id="uid" placeholder="Free Fire UID">
+        <select id="region">
+            <option value="ind">India</option>
+            <option value="sg">Singapore</option>
+            <option value="bd">Bangladesh</option>
+        </select>
+        <input type="text" id="code" placeholder="Redeem Code or Trans ID">
+        <button class="btn" onclick="request()">Request Activation</button>
+    </div>
+
+    <script>
+        let isLogin = true;
+        let currentUser = "";
+
+        function toggleAuth() {
+            isLogin = !isLogin;
+            document.getElementById('formTitle').innerText = isLogin ? "Login" : "Create Account";
+            document.getElementById('toggleText').innerText = isLogin ? "New here? Signup" : "Already have an account? Login";
+        }
+
+        async function handleAuth() {
+            const u = document.getElementById('user').value.trim();
+            const p = document.getElementById('pass').value.trim();
+            if(!u || !p) return alert("Fill all fields!");
+
+            const path = isLogin ? 'login' : 'signup';
+            try {
+                const res = await fetch(`/api/auth/${path}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username: u, password: p})
+                });
+                const data = await res.json();
+                if(data.success) {
+                    if(isLogin) {
+                        currentUser = data.user.username;
+                        showDash(data.user);
+                    } else {
+                        alert(data.msg);
+                        location.reload();
+                    }
+                } else {
+                    alert(data.msg);
+                }
+            } catch(e) { alert("Server Error!"); }
+        }
+
+        function showDash(user) {
+            document.getElementById('authBox').style.display = 'none';
+            document.getElementById('dashBox').style.display = 'block';
+            document.getElementById('displayUser').innerText = user.username.toUpperCase();
+            document.getElementById('status').innerText = "Status: " + user.status.toUpperCase();
+            if(user.status === 'active') document.getElementById('status').style.color = '#3fb950';
+        }
+
+        async function request() {
+            const uid = document.getElementById('uid').value;
+            const reg = document.getElementById('region').value;
+            const code = document.getElementById('code').value;
+            if(!uid || !code) return alert("Enter UID and Code!");
+
+            const res = await fetch('/api/request-active', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: currentUser, uid, region: reg, code})
+            });
+            const data = await res.json();
+            alert(data.msg);
+            location.reload();
+        }
+    </script>
+</body>
+</html>
