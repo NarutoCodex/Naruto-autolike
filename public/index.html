@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FF AUTOLIKE | VIP ACCESS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap');
+        
+        :root { 
+            --bg: #080808; --card: #121212; --border: #1f1f1f; 
+            --accent: #00ff88; --text: #ffffff; --gold: #ffd700; --red: #ff3e3e;
+            --shadow: 0 0 15px rgba(0, 255, 136, 0.1);
+        }
+
+        body { 
+            background: var(--bg); color: var(--text); 
+            font-family: 'Poppins', sans-serif; margin: 0; padding-bottom: 90px;
+            overflow-x: hidden;
+        }
+
+        /* --- AUTH BOX (Login/Signup) --- */
+        #authBox { height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .auth-card { background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; box-shadow: var(--shadow); }
+        .auth-card h2 { font-family: 'Orbitron', sans-serif; color: var(--accent); margin-bottom: 25px; }
+
+        input, select { 
+            width: 100%; padding: 14px; margin: 12px 0; background: #000; 
+            border: 1px solid var(--border); color: white; border-radius: 12px; box-sizing: border-box; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(0,255,136,0.2); }
+
+        .btn-main { 
+            width: 100%; padding: 15px; background: var(--accent); color: black; border: none; 
+            border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; font-family: 'Orbitron', sans-serif;
+        }
+        .btn-main:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(0,255,136,0.4); }
+
+        /* --- APP UI --- */
+        .container { padding: 20px; max-width: 600px; margin: auto; }
+        
+        .live-status { 
+            background: linear-gradient(135deg, #121212 0%, #000 100%); 
+            border: 1px solid var(--border); padding: 18px; border-radius: 20px; 
+            margin-bottom: 25px; border-left: 4px solid var(--accent); box-shadow: var(--shadow);
+        }
+        .live-dot { height: 8px; width: 8px; background: var(--accent); border-radius: 50%; display: inline-block; margin-right: 8px; animation: blink 1.2s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+
+        .card { 
+            background: var(--card); border: 1px solid var(--border); border-radius: 20px; 
+            padding: 22px; margin-bottom: 20px; transition: 0.3s;
+        }
+        .card:hover { border-color: #333; }
+
+        /* --- MY LIKES INFO --- */
+        .info-grid { display: grid; gap: 12px; margin-top: 15px; }
+        .info-item { display: flex; justify-content: space-between; border-bottom: 1px solid #1a1a1a; padding-bottom: 8px; font-size: 14px; }
+        .label { color: #888; }
+        .val { font-weight: 600; color: #fff; }
+
+        /* --- BOTTOM NAV --- */
+        .bottom-nav { 
+            position: fixed; bottom: 0; width: 100%; background: rgba(10, 10, 10, 0.95); 
+            backdrop-filter: blur(10px); display: flex; justify-content: space-around; 
+            padding: 15px 0; border-top: 1px solid var(--border); z-index: 1000;
+        }
+        .nav-item { color: #555; text-decoration: none; font-size: 11px; text-align: center; transition: 0.3s; }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
+        .nav-item.active { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+
+        /* --- MODAL --- */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card); border: 1px solid var(--accent); padding: 25px; border-radius: 25px; width: 100%; max-width: 350px; }
+
+        /* --- SECTIONS --- */
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .logout-btn { background: #1a0000; color: var(--red); border: 1px solid #330000; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div id="authBox">
+    <div class="auth-card">
+        <h2 id="authTitle">LOGIN</h2>
+        <input type="text" id="user" placeholder="Enter Username">
+        <input type="password" id="pass" placeholder="Enter Password">
+        <button class="btn-main" onclick="handleAuth()">PROCEED</button>
+        <p style="font-size: 13px; color: #666; margin-top: 20px;" onclick="toggleAuth()" id="toggleText">New User? <span style="color:var(--accent)">Create Account</span></p>
+    </div>
+</div>
+
+<div class="container" id="mainApp" style="display:none;">
+    <div class="live-status">
+        <div style="font-size: 10px; font-family: 'Orbitron'; letter-spacing: 2px;"><span class="live-dot"></span> LIVE TRACKING</div>
+        <div style="font-size: 22px; font-weight: bold; margin: 10px 0;">Today: <span id="dailyCount" style="color:var(--accent);">0</span> / 100 <span style="font-size:12px; color:#555;">Likes</span></div>
+        <div id="statusMsg" style="font-size: 12px; color: var(--gold); font-weight: 600;">STATUS: NOT ACTIVE</div>
+    </div>
+
+    <div id="dashboard" class="section active">
+        <div class="card">
+            <div style="display:flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin:0; font-family:'Orbitron';">28 DAYS VIP</h3>
+                <span style="background: var(--accent); color:black; font-size:10px; font-weight:bold; padding:4px 8px; border-radius:5px;">BEST SELLER</span>
+            </div>
+            <p style="color:#666; font-size:13px; margin: 10px 0;">Premium Autolike Service for FF</p>
+            <div style="font-size: 28px; font-weight: bold; color:var(--accent); margin-bottom: 15px;">₹90 <span style="font-size:14px; text-decoration: line-through; color:#444;">₹119</span></div>
+            <button class="btn-main" onclick="showRedeem('28 Days VIP')">BUY ACCESS</button>
+        </div>
+
+        <div class="card">
+            <h4 style="margin:0; font-family:'Orbitron'; color:var(--accent);"><i class="fas fa-shield-alt"></i> MY LIKES INFO</h4>
+            <div class="info-grid">
+                <div class="info-item"><span class="label">ID Name:</span> <span class="val" id="idName">---</span></div>
+                <div class="info-item"><span class="label">Current UID:</span> <span class="val" id="dispUid">---</span></div>
+                <div class="info-item"><span class="label">Status:</span> <span class="val" id="liveStatus" style="color:var(--red);">INACTIVE</span></div>
+                <div class="info-item"><span class="label">Before Likes:</span> <span class="val" id="bLike">0</span></div>
+                <div class="info-item"><span class="label">After Likes:</span> <span class="val" id="aLike">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="history" class="section">
+        <h3 style="font-family:'Orbitron';">TRANSACTIONS</h3>
+        <div class="card" style="text-align: center; color: #555; padding: 40px;">
+            <i class="fas fa-history" style="font-size: 40px; margin-bottom: 15px;"></i>
+            <p>No history found for your account.</p>
+        </div>
+    </div>
+
+    <div id="account" class="section">
+        <h3 style="font-family:'Orbitron';">MY ACCOUNT</h3>
+        <div class="card" style="text-align: center;">
+            <div style="width:80px; height:80px; background:var(--accent); border-radius:50%; margin: 0 auto 15px; display:flex; align-items:center; justify-content:center; color:black; font-size:30px; font-weight:bold;" id="avatar">U</div>
+            <h4 id="profileName" style="margin:0;">USERNAME</h4>
+            <p style="color:#666; font-size:12px;">Active Member</p>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> LOGOUT ACCOUNT</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="redeemModal">
+    <div class="modal-content">
+        <h3 style="margin-top:0; color:var(--accent); font-family:'Orbitron';" id="modalTitle">REDEEM</h3>
+        <input type="number" id="uid" placeholder="Free Fire UID">
+        <select id="region">
+            <option value="India">India</option>
+            <option value="BD">Bangladesh</option>
+            <option value="SG">Singapore</option>
+        </select>
+        <input type="text" id="code" placeholder="Google Play Redeem Code">
+        <button class="btn-main" onclick="submitRequest()">SUBMIT APPROVAL</button>
+        <p onclick="closeRedeem()" style="color:#666; margin-top:15px; cursor:pointer; font-size:13px;">Cancel</p>
+    </div>
+</div>
+
+<nav class="bottom-nav" id="nav" style="display:none;">
+    <a href="javascript:void(0)" class="nav-item active" onclick="tab('dashboard', this)"><i class="fas fa-grid-2"></i>DASHBOARD</a>
+    <a href="javascript:void(0)" class="nav-item" onclick="tab('history', this)"><i class="fas fa-bolt"></i>HISTORY</a>
+    <a href="javascript:void(0)" class="nav-item" onclick="tab('account', this)"><i class="fas fa-user-circle"></i>ACCOUNT</a>
+</nav>
+
+<script>
+    let isLogin = true;
+    let currentUser = "";
+
+    function toggleAuth() {
+        isLogin = !isLogin;
+        document.getElementById('authTitle').innerText = isLogin ? "LOGIN" : "SIGNUP";
+        document.getElementById('toggleText').innerHTML = isLogin ? 'New User? <span style="color:var(--accent)">Create Account</span>' : 'Have account? <span style="color:var(--accent)">Login</span>';
+    }
+
+    async function handleAuth() {
+        const u = document.getElementById('user').value.trim();
+        const p = document.getElementById('pass').value.trim();
+        if(!u || !p) return alert("Fill all fields!");
+
+        const path = isLogin ? 'login' : 'signup';
+        const res = await fetch(`/api/auth/${path}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username: u, password: p})
+        });
+        const data = await res.json();
+        
+        if(data.success) {
+            if(isLogin) showDash(data.user);
+            else alert("Registered! Now Login."), location.reload();
+        } else alert(data.msg);
+    }
+
+    function showDash(user) {
+        currentUser = user.username;
+        document.getElementById('authBox').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        document.getElementById('nav').style.display = 'flex';
+        document.getElementById('profileName').innerText = user.username.toUpperCase();
+        document.getElementById('avatar').innerText = user.username[0].toUpperCase();
+        
+        // Status Update
+        if(user.status === 'active') {
+            document.getElementById('statusMsg').innerHTML = "✅ STATUS: YOUR REQUEST APPROVED";
+            document.getElementById('statusMsg').style.color = "var(--accent)";
+            document.getElementById('liveStatus').innerText = "ACTIVE";
+            document.getElementById('liveStatus').style.color = "var(--accent)";
+            document.getElementById('idName').innerText = user.username;
+            document.getElementById('dispUid').innerText = user.uid || "N/A";
+        } else if(user.status === 'pending') {
+            document.getElementById('statusMsg').innerText = "⏳ STATUS: WAITING FOR APPROVAL";
+            document.getElementById('statusMsg').style.color = "var(--gold)";
+        }
+    }
+
+    function tab(id, el) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        el.classList.add('active');
+    }
+
+    function showRedeem(plan) { document.getElementById('modalTitle').innerText = plan; document.getElementById('redeemModal').style.display = 'flex'; }
+    function closeRedeem() { document.getElementById('redeemModal').style.display = 'none'; }
+    function logout() { if(confirm("Logout Account?")) location.reload(); }
+
+    async function submitRequest() {
+        const uid = document.getElementById('uid').value;
+        const code = document.getElementById('code').value;
+        if(!uid || !code) return alert("Enter UID & Code!");
+
+        const res = await fetch('/api/request-active', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username: currentUser, uid, code})
+        });
+        const data = await res.json();
+        alert("Success: Request sent to Admin!");
+        closeRedeem();
+        location.reload();
+    }
+</script>
+</body>
+</html>
