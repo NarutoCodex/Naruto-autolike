@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head><title>ADMIN PANEL</title></head>
+<body style="background:#000; color:#00ff88; font-family:sans-serif; padding:20px;">
+    <h2>PENDING REQUESTS</h2>
+    <input type="password" id="key" placeholder="Admin Secret Key" style="width:100%; padding:10px; background:#111; color:white; border:1px solid #333; margin-bottom:10px;">
+    <button onclick="load()" style="width:100%; padding:10px; background:#00ff88; font-weight:bold; cursor:pointer;">FETCH REQUESTS</button>
+    <div id="list" style="margin-top:20px;"></div>
+
+    <script>
+        async function load() {
+            const k = document.getElementById('key').value;
+            const res = await fetch('/api/admin/all', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k}) });
+            const users = await res.json();
+            let h = '';
+            users.forEach(u => {
+                h += `<div style="border:1px solid #333; padding:15px; margin-bottom:10px; border-radius:10px;">
+                    User: <b>${u.username}</b> | UID: ${u.uid} | Code: <span style="color:yellow">${u.redeemCode}</span><br><br>
+                    <button onclick="upd('${u._id}','active')" style="background:green; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">APPROVE</button>
+                    <button onclick="upd('${u._id}','rejected')" style="background:red; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; margin-left:10px;">REJECT</button>
+                </div>`;
+            });
+            document.getElementById('list').innerHTML = h || "No pending requests found.";
+        }
+
+        async function upd(id, status) {
+            const k = document.getElementById('key').value;
+            const days = status === 'active' ? prompt("Enter VIP Days (e.g. 28, 60, 120):", "30") : null;
+            if(status === 'active' && !days) return;
+
+            const res = await fetch('/api/admin/update-status', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k, id, status, days}) });
+            const data = await res.json();
+            if(data.success) {
+                alert("Updated!"); load();
+            }
+        }
+    </script>
+</body>
+</html>
