@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<body style="background:#000; color:#00ff88; padding:20px; font-family:sans-serif;">
+    <h2>ADMIN: BALANCE REQUESTS</h2>
+    <input type="password" id="key" placeholder="Admin Key" style="width:100%; padding:10px; margin-bottom:10px;">
+    <button onclick="load()" style="width:100%; padding:10px; background:#00ff88;">LOAD DATA</button>
+    <div id="list" style="margin-top:20px;"></div>
+
+    <script>
+        async function load() {
+            const k = document.getElementById('key').value;
+            const res = await fetch('/api/admin/all', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k}) });
+            const users = await res.json();
+            let h = '';
+            users.forEach(u => {
+                if(u.status === 'pending_balance') {
+                    h += `<div style="border:1px solid #333; padding:15px; margin-bottom:10px;">
+                        User: ${u.username} | Amount: ₹${u.pendingBalance} | Code: ${u.redeemCode}<br><br>
+                        <button onclick="appBal('${u._id}')" style="background:green; color:white; border:none; padding:8px 15px;">APPROVE BALANCE</button>
+                    </div>`;
+                }
+            });
+            document.getElementById('list').innerHTML = h || "No pending balance requests.";
+        }
+
+        async function appBal(id) {
+            const k = document.getElementById('key').value;
+            await fetch('/api/admin/approve-balance', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k, id}) });
+            alert("Balance Added!"); load();
+        }
+    </script>
+</body>
+</html>
