@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ADMIN PANEL</title>
+    <style>
+        body { background: #000; color: #00ff88; font-family: sans-serif; padding: 20px; }
+        .card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; background: #000; color: #fff; border: 1px solid #333; margin: 5px 0; border-radius: 8px; }
+        button { padding: 10px; background: #00ff88; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h2>MASTER CONTROL</h2>
+    <input type="password" id="key" placeholder="Admin Secret Key">
+    <button onclick="load()">LOAD DATA</button>
+
+    <div class="card">
+        <h3>➕ Add VIP Plan</h3>
+        <input type="number" id="pDays" placeholder="Days">
+        <input type="number" id="pPrice" placeholder="Price">
+        <input type="text" id="pTag" placeholder="Tag (e.g. POPULAR)">
+        <button onclick="addPlan()">SAVE PLAN</button>
+    </div>
+
+    <div class="card">
+        <h3>⏳ User Requests & Management</h3>
+        <div id="userList">Loading...</div>
+    </div>
+
+    <script>
+        async function load() {
+            const k = document.getElementById('key').value;
+            const res = await fetch('/api/admin/all', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({adminKey: k})
+            });
+            const users = await res.json();
+            let html = '';
+            users.forEach(u => {
+                html += `<div style="border-bottom:1px solid #222; padding:10px;">
+                    <b>${u.username}</b> (UID: ${u.uid}) | Code: <b>${u.redeemCode}</b> | Status: ${u.status}
+                    <br>
+                    <button onclick="update('${u._id}','active')">Approve</button>
+                    <button onclick="update('${u._id}','rejected')" style="background:red; color:white;">Reject</button>
+                </div>`;
+            });
+            document.getElementById('userList').innerHTML = html;
+        }
+
+        async function update(id, status) {
+            const k = document.getElementById('key').value;
+            const days = status === 'active' ? prompt("Enter Days:", "30") : null;
+            await fetch('/api/admin/update-user', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({adminKey: k, id, status, days})
+            });
+            alert("Updated!"); load();
+        }
+
+        async function addPlan() {
+            const k = document.getElementById('key').value;
+            const body = { 
+                adminKey: k, 
+                days: document.getElementById('pDays').value, 
+                price: document.getElementById('pPrice').value,
+                tag: document.getElementById('pTag').value
+            };
+            await fetch('/api/admin/add-plan', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(body)
+            });
+            alert("Plan Saved!");
+        }
+    </script>
+</body>
+</html>
