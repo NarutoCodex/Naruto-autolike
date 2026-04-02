@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FF VIP STORE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@700&display=swap');
+        :root { --bg: #050505; --acc: #00ff88; --card: #111; --border: #222; }
+        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; margin: 0; padding-bottom: 90px; }
+        .container { padding: 15px; max-width: 500px; margin: auto; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 25px; margin-bottom: 15px; }
+        .btn-main { width: 100%; padding: 14px; background: var(--acc); color: #000; border: none; border-radius: 10px; font-weight: bold; font-family: 'Orbitron'; cursor: pointer; }
+        input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: #000; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #111; z-index: 1000; }
+        .nav-item { color: #555; text-decoration: none; text-align: center; font-size: 11px; flex: 1; cursor: pointer; }
+        .nav-item.active { color: var(--acc); }
+        .section { display: none; }
+        .section.active { display: block; }
+        .detail-badge { background: #222; padding: 5px 10px; border-radius: 8px; font-size: 11px; color: var(--acc); margin-top: 10px; display: inline-block; border: 1px solid #333; }
+        .tg-float { position: fixed; width: 60px; height: 60px; bottom: 100px; right: 20px; background: #0088cc; color: white; border-radius: 50%; text-align: center; font-size: 30px; display: flex; align-items: center; justify-content: center; text-decoration: none; z-index: 1001; }
+    </style>
+</head>
+<body>
+
+<div id="authBox" style="height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div class="card" style="width:100%; max-width:350px; text-align:center;">
+        <h2 id="authT" style="color:var(--acc); font-family:'Orbitron';">LOGIN</h2>
+        <input type="text" id="u" placeholder="Username">
+        <input type="password" id="p" placeholder="Password">
+        <button class="btn-main" onclick="handleAuth()">PROCEED</button>
+        <p onclick="toggleAuth()" id="toggleT" style="font-size:13px; margin-top:15px; color:#666; cursor:pointer;">New Here? <span style="color:var(--acc)">Create Account</span></p>
+    </div>
+</div>
+
+<div class="container" id="app" style="display:none;">
+    <div id="dashSec" class="section active">
+        <div class="card" style="border-left: 5px solid var(--acc);">
+            <div style="font-size:10px; color:var(--acc)">● MY BALANCE: ₹<span id="balDisplay">0</span></div>
+            <h2 id="statusText" style="margin:10px 0;">INACTIVE</h2>
+            <div id="activeDetails" style="display:none; border-top:1px solid #222; padding-top:10px; margin-top:10px;">
+                <div class="detail-badge">UID: <span id="dispUid">N/A</span></div>
+                <div class="detail-badge">LIKES: <span id="dispLikes">0</span></div>
+                <div id="daysLeft" style="font-size:12px; color:#888; margin-top:8px;">Plan active</div>
+            </div>
+        </div>
+        <div id="plansList"></div>
+    </div>
+
+    <div id="balSec" class="section">
+        <h3 style="color:var(--acc)">ADD BALANCE</h3>
+        <div class="card"><input type="number" id="addAmt" placeholder="Enter Amount"><input type="text" id="addCode" placeholder="Redeem Code"><button class="btn-main" onclick="submitBalance()">SUBMIT REQUEST</button></div>
+    </div>
+
+    <div id="histSec" class="section"><h3>HISTORY</h3><div id="historyList"><div class="card">No records found.</div></div></div>
+
+    <div id="accSec" class="section"><div class="card" style="text-align:center;"><h3 id="userD">USER</h3><button class="btn-main" style="background:#200; color:#f44;" onclick="location.reload()">LOGOUT</button></div></div>
+</div>
+
+<nav class="nav" id="navBar" style="display:none;">
+    <div class="nav-item active" onclick="tab('dashSec', this)"><i class="fa fa-home"></i><br>Dash</div>
+    <div class="nav-item" onclick="tab('histSec', this)"><i class="fa fa-history"></i><br>History</div>
+    <div class="nav-item" onclick="tab('balSec', this)"><i class="fa fa-wallet"></i><br>Wallet</div>
+    <div class="nav-item" onclick="tab('accSec', this)"><i class="fa fa-user-circle"></i><br>Acc</div>
+</nav>
+
+<a href="https://t.me/narutocodex8" class="tg-float" target="_blank"><i class="fab fa-telegram-plane"></i></a>
+
+<script>
+    let isL = true; let curU = ""; let curBal = 0;
+    const plans = [{d:28,p:90},{d:60,p:180},{d:90,p:250},{d:120,p:320}];
+
+    function toggleAuth() { isL = !isL; document.getElementById('authT').innerText = isL ? "LOGIN" : "SIGNUP"; document.getElementById('toggleT').innerHTML = isL ? 'New Here? <span style="color:var(--acc)">Create Account</span>' : 'Already have account? <span style="color:var(--acc)">Login</span>'; }
+
+    async function handleAuth() {
+        const u = document.getElementById('u').value.trim(); const p = document.getElementById('p').value.trim();
+        const path = isL ? 'login' : 'signup';
+        const res = await fetch(`/api/auth/${path}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p}) });
+        const data = await res.json();
+        if(data.success) { if(isL) { curU=u; showUI(data.user); } else { alert("Signup Success!"); toggleAuth(); } } else alert(data.msg);
+    }
+
+    function showUI(user) {
+        document.getElementById('authBox').style.display='none'; document.getElementById('app').style.display='block'; document.getElementById('navBar').style.display='flex';
+        document.getElementById('balDisplay').innerText = user.balance;
+        document.getElementById('userD').innerText = user.username.toUpperCase();
+        curBal = user.balance;
+
+        if(user.status === 'active') {
+            document.getElementById('statusText').innerText = "ACTIVE ✅";
+            document.getElementById('activeDetails').style.display = 'block';
+            document.getElementById('dispUid').innerText = user.uid || "N/A";
+            document.getElementById('dispLikes').innerText = user.totalLikes || 0;
+            const exp = new Date(user.expiryDate);
+            const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24));
+            document.getElementById('daysLeft').innerText = diff + " Days Remaining";
+        }
+
+        let h = '';
+        plans.forEach(p => { h += `<div class="card"><h3>${p.d} DAYS VIP</h3><p>₹${p.p}</p><button class="btn-main" onclick="buyPlan(${p.p}, ${p.d})">BUY PLAN</button></div>`; });
+        document.getElementById('plansList').innerHTML = h;
+    }
+
+    async function buyPlan(price, days) {
+        if(curBal < price) return alert("Low Balance!");
+        const uid = prompt("Enter FF UID:"); if(!uid) return;
+        const res = await fetch('/api/buy-likes', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:curU, price, days, uid}) });
+        const d = await res.json(); alert(d.msg); location.reload();
+    }
+
+    async function submitBalance() {
+        const amount = document.getElementById('addAmt').value; const code = document.getElementById('addCode').value;
+        await fetch('/api/add-balance', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:curU, amount, code}) });
+        alert("Sent to Admin!"); location.reload();
+    }
+
+    function tab(id, el) { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); document.getElementById(id).classList.add('active'); el.classList.add('active'); }
+</script>
+</body>
+</html>
