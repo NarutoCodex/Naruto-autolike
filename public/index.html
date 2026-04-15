@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEXI TOOL - SYSTEM CONTROL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@700&display=swap');
+
+        :root {
+            --bg-body: #0a0b0d;
+            --bg-card: #15171a;
+            --primary-orange: #ff6a00;
+            --text-main: #ffffff;
+            --text-muted: #8e9297;
+            --border-color: #23262a;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        /* Top Header Style */
+        .top-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg-body);
+            border-bottom: 1px solid var(--border-color);
+            justify-content: space-between;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--primary-orange);
+        }
+
+        .wallet-badge {
+            background: #1c1f24;
+            padding: 5px 12px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Container */
+        .container { padding: 15px; }
+
+        /* Card Style - Zexi Style */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Button Style - Orange Glitch */
+        .btn-orange {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #ff8c00, #ff4500);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-family: 'Poppins';
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .btn-orange:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 106, 0, 0.4); }
+
+        /* Input Style */
+        input, select {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            background: #1c1f24;
+            border: 1px solid var(--border-color);
+            color: white;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        /* Navigation Bar */
+        .nav-bottom {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #111317;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid var(--border-color);
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            color: var(--text-muted);
+            text-align: center;
+            font-size: 10px;
+            text-decoration: none;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .nav-btn.active { color: white; }
+        .nav-btn i { font-size: 20px; display: block; margin-bottom: 4px; }
+
+        /* Sections */
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* Login Screen Specific */
+        #authBox {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .logo-img { width: 100px; border-radius: 20px; margin-bottom: 10px; }
+
+        .qr-display {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            border-radius: 15px;
+            background: white;
+            padding: 10px;
+        }
+
+        .qr-display img { width: 100%; }
+
+    </style>
+</head>
+<body>
+
+<div id="authBox">
+    <img src="https://i.ibb.co/hR4f7h9/zexi-logo.png" class="logo-img">
+    <h1 style="font-family: Orbitron; font-size: 24px; margin: 5px 0;">ZEXI TOOL</h1>
+    <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 30px;">FREE FIRE BOT MAKER</p>
+    
+    <div class="card" style="width: 100%; max-width: 350px;">
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button id="loginTab" class="btn-orange" style="flex: 1;" onclick="setAuthMode(true)">LOGIN</button>
+            <button id="signupTab" class="btn-orange" style="flex: 1; background: #1c1f24; color: white;" onclick="setAuthMode(false)">SIGN UP</button>
+        </div>
+        <input type="text" id="u" placeholder="Enter your email/username">
+        <input type="password" id="p" placeholder="Enter your password">
+        <button class="btn-orange" style="margin-top: 10px;" onclick="handleAuth()">LOGIN</button>
+    </div>
+</div>
+
+<div id="app" style="display:none;">
+    <div class="top-header">
+        <div class="user-profile">
+            <img src="https://i.ibb.co/hR4f7h9/zexi-logo.png" class="avatar">
+            <div>
+                <div style="font-size: 14px; font-weight: 600;" id="headerName">USER</div>
+                <div style="font-size: 10px; color: var(--text-muted);">SYSTEM CONTROL PANEL</div>
+            </div>
+        </div>
+        <div class="wallet-badge">
+            <i class="fa fa-wallet" style="color: var(--primary-orange);"></i>
+            <b>₹<span id="balDisplay">0</span></b>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="homeSec" class="section active">
+            <h3 style="font-size: 16px;">Services</h3>
+            <div id="plansList"></div>
+            
+            <h3 style="font-size: 16px; margin-top: 25px;">Active Status</h3>
+            <div id="activePlansList"></div>
+        </div>
+
+        <div id="walletSec" class="section">
+            <h2 style="font-size: 18px; text-align: center;">Payment</h2>
+            <div class="card" style="text-align: center;">
+                <p style="font-size: 12px; color: var(--text-muted);">Scan OR Click QR to Pay</p>
+                <div class="qr-display">
+                    <img src="qr.jpg"> </div>
+                <h1 style="font-family: Orbitron;">₹350</h1>
+                
+                <select id="planSelect">
+                    <option>Starter - ₹350</option>
+                    <option>VIP - ₹600</option>
+                </select>
+                <input type="text" id="addCode" placeholder="ENTER UTR (12+ CHARACTERS)">
+                <p style="font-size: 10px; color: var(--text-muted);">Enter 12-digit UTR No. after payment</p>
+                <button class="btn-orange" onclick="submitBalance()">SUBMIT PAYMENT</button>
+            </div>
+        </div>
+
+        <div id="histSec" class="section">
+            <h3 style="font-size: 16px;">Orders History</h3>
+            <div id="historyList"></div>
+        </div>
+
+        <div id="supportSec" class="section">
+            <div class="card" style="height: 400px; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <b>Support Agent: ZEXI</b>
+                    <span style="color: #666; font-size: 12px;">● OFFLINE</span>
+                </div>
+                <div style="text-align: center; margin-top: 100px; color: var(--text-muted);">
+                    Start a conversation with Support
+                </div>
+                <div style="position: absolute; bottom: 15px; left: 15px; right: 15px;">
+                    <input type="text" placeholder="Type your message...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-bottom">
+        <div class="nav-btn active" onclick="tab('homeSec', this)"><i class="fa fa-layer-group"></i>Home</div>
+        <div class="nav-btn" onclick="tab('histSec', this)"><i class="fa fa-list-ul"></i>History</div>
+        <div class="nav-btn" onclick="tab('supportSec', this)"><i class="fa fa-comment-dots"></i>Support</div>
+        <div class="nav-btn" onclick="tab('homeSec', this)"><i class="fa fa-box-open"></i>Orders</div>
+        <div class="nav-btn" onclick="tab('walletSec', this)"><i class="fa fa-wallet"></i>Wallet</div>
+    </div>
+</div>
+
+<script>
+    let isL = true; let curU = ""; let curBal = 0;
+    const availablePlans = [{d:28,p:90, n:"Starter Plan"},{d:60,p:180, n:"Pro Plan"},{d:90,p:250, n:"VIP Plan"}];
+
+    function setAuthMode(mode) {
+        isL = mode;
+        document.getElementById('loginTab').style.background = mode ? 'linear-gradient(90deg, #ff8c00, #ff4500)' : '#1c1f24';
+        document.getElementById('signupTab').style.background = !mode ? 'linear-gradient(90deg, #ff8c00, #ff4500)' : '#1c1f24';
+    }
+
+    async function handleAuth() {
+        const u = document.getElementById('u').value.trim();
+        const p = document.getElementById('p').value.trim();
+        const res = await fetch(`/api/auth/${isL?'login':'signup'}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p}) });
+        const data = await res.json();
+        if(data.success) { if(isL) { curU=u; showUI(data.user); } else { alert("Done!"); setAuthMode(true); } } else alert(data.msg);
+    }
+
+    function showUI(user) {
+        document.getElementById('authBox').style.display='none';
+        document.getElementById('app').style.display='block';
+        document.getElementById('balDisplay').innerText = user.balance;
+        document.getElementById('headerName').innerText = user.username.split('@')[0].toUpperCase();
+        curBal = user.balance;
+
+        let pH = '';
+        availablePlans.forEach(p => {
+            pH += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div><b style="font-size:14px;">${p.n}</b><br><small style="color:var(--text-muted);">${p.d} Days Duration</small></div>
+                <button class="btn-orange" style="width: auto; padding: 8px 15px;" onclick="buyPlan(${p.p}, ${p.d})">₹${p.p}</button>
+            </div>`;
+        });
+        document.getElementById('plansList').innerHTML = pH;
+
+        let activeH = ''; let historyH = '';
+        if(user.activePlans && user.activePlans.length > 0) {
+            user.activePlans.forEach((plan, i) => {
+                const diff = Math.ceil((new Date(plan.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
+                activeH += `<div class="card" style="border-left: 4px solid #ff6a00;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <b>Order #${i+1}</b>
+                        <span style="color: #00ff88; font-size:12px;">ACTIVE</span>
+                    </div>
+                    <div style="font-size:12px; margin-top:10px; color:var(--text-muted);">
+                        UID: ${plan.uid} | Days Left: ${diff}
+                    </div>
+                </div>`;
+                historyH += `<div class="card"><b>Plan Purchase</b><br><small>UID: ${plan.uid} | Price: ₹${plan.price || 'N/A'}</small></div>`;
+            });
+            document.getElementById('activePlansList').innerHTML = activeH;
+            document.getElementById('historyList').innerHTML = historyH;
+        } else {
+            document.getElementById('activePlansList').innerHTML = '<div class="card" style="text-align:center; color:#666;">No active processes</div>';
+        }
+    }
+
+    async function buyPlan(price, days) {
+        if(curBal < price) return alert("Insufficient Balance!");
+        const uid = prompt("Enter FF UID:"); if(!uid) return;
+        const res = await fetch('/api/buy-likes', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:curU, price, days, uid}) });
+        const d = await res.json(); alert(d.msg); location.reload();
+    }
+
+    async function submitBalance() {
+        const amt = document.getElementById('planSelect').value.split('₹')[1];
+        const code = document.getElementById('addCode').value;
+        if(code.length < 10) return alert("Invalid UTR");
+        await fetch('/api/add-balance', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:curU, amount:amt, code:code}) });
+        alert("Payment Submitted! Please wait for approval.");
+    }
+
+    function tab(id, el) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        el.classList.add('active');
+    }
+</script>
+</body>
+</html>
