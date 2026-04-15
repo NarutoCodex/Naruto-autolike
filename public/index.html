@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SURE LIKES | VIP STORE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@700&display=swap');
+        
+        :root { 
+            --bg: #030303; 
+            --acc: #00ff88; /* Neon Green from images */
+            --card: #0c0c0c; 
+            --border: #1a1a1a; 
+            --text-main: #f0f0f0;
+            --text-sec: #999;
+        }
+
+        body { 
+            background: var(--bg); 
+            color: var(--text-main); 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            padding-bottom: 90px; 
+            overflow-x: hidden;
+        }
+
+        .container { 
+            padding: 20px; 
+            max-width: 500px; 
+            margin: auto; 
+        }
+
+        /* Unique card design like images */
+        .card { 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            border-radius: 20px; 
+            padding: 30px 25px; 
+            margin-bottom: 20px; 
+            position: relative; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: 0.3s;
+        }
+        
+        .card:hover {
+            border-color: #333;
+            transform: translateY(-2px);
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        
+        .logo-text span {
+            color: var(--acc);
+        }
+
+        .btn-main { 
+            width: 100%; 
+            padding: 16px; 
+            background: var(--acc); 
+            color: #000; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            font-family: 'Poppins'; 
+            cursor: pointer; 
+            font-size: 15px;
+            box-shadow: 0 4px 15px rgba(0,255,136,0.3);
+            transition: 0.3s;
+        }
+        
+        .btn-main:hover {
+            box-shadow: 0 6px 20px rgba(0,255,136,0.5);
+        }
+
+        input { 
+            width: 100%; 
+            padding: 14px 18px; 
+            margin: 10px 0; 
+            background: #000; 
+            border: 1px solid #2a2a2a; 
+            color: white; 
+            border-radius: 12px; 
+            box-sizing: border-box; 
+            font-family: 'Poppins';
+            font-size: 14px;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--acc);
+        }
+
+        .nav { 
+            position: fixed; 
+            bottom: 0; 
+            width: 100%; 
+            background: #000; 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 15px 0; 
+            border-top: 1px solid var(--border); 
+            z-index: 1000; 
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+        }
+        
+        .nav-item { 
+            color: #555; 
+            text-decoration: none; 
+            text-align: center; 
+            font-size: 11px; 
+            flex: 1; 
+            cursor: pointer; 
+            font-weight: 600;
+        }
+        
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .nav-item.active { color: var(--acc); }
+
+        .section { display: none; }
+        .section.active { display: block; }
+        
+        /* Plan box look */
+        .plan-box { 
+            border: 1px solid var(--border); 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-top: 15px; 
+            background: #080808; 
+            border-left: 4px solid var(--acc); 
+        }
+        
+        .badge { 
+            background: rgba(0,255,136,0.1); 
+            color: var(--acc); 
+            font-size: 11px; 
+            padding: 4px 10px; 
+            border-radius: 6px; 
+            margin-right: 8px; 
+            border: 1px solid rgba(0,255,136,0.3); 
+            display: inline-block; 
+            margin-top: 8px; 
+            font-weight: 600;
+        }
+        
+        h3 { 
+            font-family: 'Orbitron'; 
+            font-size: 16px; 
+            margin: 25px 0 15px 0; 
+            color: #fff; 
+            text-transform: uppercase;
+        }
+        
+        .title-sec {
+            color: var(--text-sec);
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .balance-num {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--acc);
+            margin: 10px 0;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="authBox" style="height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div class="card" style="width:100%; max-width:350px; text-align:center;">
+        <div class="logo-text">SURE<span>LIKES</span></div>
+        <input type="text" id="u" placeholder="Username">
+        <input type="password" id="p" placeholder="Password">
+        <button class="btn-main" onclick="handleAuth()" style="margin-top: 15px;">LOGIN NOW</button>
+        <p onclick="toggleAuth()" id="toggleT" style="font-size:13px; margin-top:20px; color:var(--text-sec); cursor:pointer;">Don't have account? <span style="color:var(--acc)">Signup</span></p>
+    </div>
+</div>
+
+<div class="container" id="app" style="display:none;">
+    
+    <div id="dashSec" class="section active">
+        <div class="card" style="text-align: center;">
+            <div class="title-sec">Your Balance</div>
+            <div class="balance-num">₹<span id="balDisplay">0</span></div>
+            <div style="font-size: 12px; color: #555;">VIP MEMBERSHIP ACTIVE</div>
+        </div>
+
+        <h3>AVAILABLE PLANS</h3>
+        <div id="plansList"></div>
+
+        <div class="card" style="margin-top:30px;">
+            <h3 style="margin:0 0 15px 0; color:#fff;">ACTIVE STATUS</h3>
+            <div id="activePlansList">
+                <p style="font-size:12px; color:#666; text-align: center;">No active plans</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="balSec" class="section">
+        <h3>ADD BALANCE</h3>
+        <div class="card" style="text-align:center;">
+            <div class="title-sec">Payment Method</div>
+            <div style="margin: 20px 0;">
+                <img src="/qr.png" alt="Payment QR" style="width: 200px; height: 200px; border-radius: 15px; border: 5px solid #fff; box-shadow: 0 5px 20px rgba(255,255,255,0.1);">
+                <div style="font-size: 14px; color: var(--acc); font-weight: 600; margin-top: 10px;">Scan QR to Pay</div>
+            </div>
+            <input type="number" id="addAmt" placeholder="Enter Paid Amount">
+            <input type="text" id="addCode" placeholder="Redeem/Txn Code">
+            <button class="btn-main" onclick="submitBalance()" style="margin-top: 10px;">ADD BALANCE</button>
+        </div>
+    </div>
+
+    <div id="histSec" class="section">
+        <h3>HISTORY</h3>
+        <div id="historyList"></div>
+    </div>
+
+    <div id="accSec" class="section">
+        <div class="card" style="text-align:center;">
+            <div class="title-sec">Logged In As</div>
+            <h3 id="userD" style="color:#fff; font-size: 20px; margin: 10px 0 25px 0;">USER</h3>
+            <button class="btn-main" style="background:#200; color:#f44; box-shadow: 0 4px 15px rgba(255,0,0,0.2);" onclick="location.reload()">LOGOUT</button>
+        </div>
+    </div>
+</div>
+
+<nav class="nav" id="navBar" style="display:none;">
+    <div class="nav-item active" onclick="tab('dashSec', this)"><i class="fa fa-home"></i><br>Dashboard</div>
+    <div class="nav-item" onclick="tab('histSec', this)"><i class="fa fa-history"></i><br>History</div>
+    <div class="nav-item" onclick="tab('balSec', this)"><i class="fa fa-wallet"></i><br>Wallet</div>
+    <div class="nav-item" onclick="tab('accSec', this)"><i class="fa fa-user-circle"></i><br>Account</div>
+</nav>
+
+<script>
+    let isL = true; let curU = ""; let curBal = 0; let curP = "";
+    const priceList = [{d:28,p:90},{d:60,p:180},{d:90,p:250},{d:120,p:320}];
+
+    function toggleAuth() { 
+        isL = !isL; 
+        document.querySelector('.authT').innerText = isL ? "LOGIN" : "SIGNUP"; 
+        document.querySelector('.btn-main').innerText = isL ? "LOGIN NOW" : "SIGNUP NOW";
+        document.getElementById('toggleT').innerHTML = isL ? 'Don\'t have account? <span style="color:var(--acc)">Signup</span>' : 'Have account? <span style="color:var(--acc)">Login</span>';
+    }
+
+    async function handleAuth() {
+        const u = document.getElementById('u').value.trim(); const p = document.getElementById('p').value.trim();
+        const res = await fetch(`/api/auth/${isL?'login':'signup'}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p}) });
+        const data = await res.json();
+        if(data.success) { if(isL) { curU=u; curP=p; showUI(data.user); } else { alert("Done!"); toggleAuth(); } } else alert(data.msg);
+    }
+
+    function showUI(user) {
+        document.getElementById('authBox').style.display='none'; document.getElementById('app').style.display='block'; document.getElementById('navBar').style.display='flex';
+        document.getElementById('balDisplay').innerText = user.balance;
+        document.getElementById('userD').innerText = user.username.toUpperCase();
+        curBal = user.balance;
+
+        // Render Plans
+        let lH = ''; let vH = '';
+        priceList.forEach(p => {
+            lH += `<div class="card">
+                <h3 style="margin:0 0 15px 0; color:white; font-size:16px;">${p.d} DAYS VIP LIKES <span style="float:right; color:var(--acc)">₹${p.p}</span></h3>
+                <div style="font-size: 12px; color: var(--text-sec); margin-bottom: 20px;">Get INSTANT 100 Likes Daily for ${p.d} Days.</div>
+                <button class="btn-main" onclick="buyPlan('like', ${p.p}, ${p.d})">ACTIVATE NOW</button>
+            </div>`;
+        });
+        document.getElementById('plansList').innerHTML = lH;
+
+        // Active Status
+        let activeH = ''; let historyH = '';
+        if(user.activePlans && user.activePlans.length > 0) {
+            user.activePlans.forEach((plan, i) => {
+                const diff = Math.ceil((new Date(plan.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
+                activeH += `<div class="plan-box">
+                    <div style="color:var(--acc); font-weight:bold; font-size:13px;">${plan.type.toUpperCase()} PLAN ${i+1}</div>
+                    <span class="badge">UID: ${plan.uid}</span><span class="badge">DONE: ${plan.totalDone}</span>
+                    <div style="font-size:11px; color:#888; margin-top:5px;">${diff} Days Remaining</div>
+                </div>`;
+                historyH += `<div class="card" style="padding:15px; border:1px solid #333;"><b style="color:var(--acc)">${plan.type.toUpperCase()}</b> | UID: ${plan.uid}<br><small style="color:#666">Expires: ${new Date(plan.expiryDate).toLocaleDateString()}</small></div>`;
+            });
+            document.getElementById('activePlansList').innerHTML = activeH;
+            document.getElementById('historyList').innerHTML = historyH;
+        } else {
+            document.getElementById('activePlansList').innerHTML = '<p style="text-align:center; font-size:12px; color:#666;">No active plans</p>';
+        }
+    }
+
+    async function buyPlan(type, price, days) {
+        if(curBal < price) return alert("Low Balance!");
+        const uid = prompt("Enter FF UID:"); if(!uid) return;
+        const region = prompt("Enter Region (ind/bd/sg):", "ind"); if(!region) return;
+        
+        const res = await fetch('/api/buy-plan', { 
+            method:'POST', 
+            headers:{'Content-Type':'application/json'}, 
+            body:JSON.stringify({username:curU, type, price, days, uid, region}) 
+        });
+        const d = await res.json(); 
+        alert(d.msg);
+        
+        if(d.success) {
+            // Auto Refresh data after purchase
+            const refreshRes = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:curU, password:curP}) });
+            const refreshData = await refreshRes.json();
+            if(refreshData.success) showUI(refreshData.user);
+        }
+    }
+
+    async function submitBalance() {
+        const amount = document.getElementById('addAmt').value; const code = document.getElementById('addCode').value;
+        if(!amount || !code) return alert("Fill details");
+        await fetch('/api/add-balance', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:curU, amount, code}) });
+        alert("Sent to Admin!"); location.reload();
+    }
+
+    function tab(id, el) { 
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); 
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); 
+        document.getElementById(id).classList.add('active'); el.classList.add('active'); 
+    }
+</script>
+</body>
+</html>

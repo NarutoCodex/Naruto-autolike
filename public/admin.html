@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SURE LIKES | ADMIN PANEL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@700&display=swap');
+        
+        :root { 
+            --bg: #030303; 
+            --acc: #00ff88; 
+            --card: #0c0c0c; 
+            --border: #1a1a1a; 
+            --text-main: #f0f0f0;
+            --text-sec: #999;
+        }
+
+        body { background:var(--bg); color:var(--text-main); font-family: 'Poppins', sans-serif; padding:20px; }
+        
+        h2 { font-family: 'Orbitron'; color: var(--acc); text-align: center; margin-bottom: 30px; text-transform: uppercase;}
+        
+        .card { 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            border-radius: 20px; 
+            padding: 25px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        input { 
+            width:100%; 
+            padding:14px 18px; 
+            margin:10px 0; 
+            background:#000; 
+            border:1px solid #2a2a2a; 
+            color:white; 
+            border-radius:12px; 
+            box-sizing:border-box; 
+            font-family: 'Poppins';
+        }
+        
+        input:focus { outline: none; border-color: var(--acc); }
+
+        button { 
+            width: 100%; 
+            padding: 16px; 
+            background: var(--acc); 
+            color: #000; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            font-family: 'Poppins'; 
+            cursor: pointer; 
+            font-size: 15px;
+            box-shadow: 0 4px 15px rgba(0,255,136,0.3);
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+        
+        button:hover { box-shadow: 0 6px 20px rgba(0,255,136,0.5); }
+        
+        #list { margin-top:30px; }
+        
+        .req-card {
+            border:1px solid var(--border); 
+            padding:20px; 
+            border-radius:15px; 
+            margin-bottom:15px; 
+            background:#080808;
+            border-left: 4px solid #333;
+        }
+        
+        .req-user { color: var(--acc); font-weight: 600; font-size: 16px; }
+        .req-amt { font-size: 14px; color: #fff; margin: 5px 0; }
+        .req-code { font-size: 12px; color: #555; background: #000; padding: 2px 6px; border-radius: 4px; }
+
+    </style>
+</head>
+<body>
+    <h2>ADMIN PANEL | BALANCE REQUESTS</h2>
+    
+    <div class="card">
+        <input type="password" id="key" placeholder="Enter Admin Secret Key">
+        <button onclick="load()" style="margin-top: 10px;">FETCH REQUESTS</button>
+    </div>
+
+    <div id="list"></div>
+
+    <script>
+        async function load() {
+            const k = document.getElementById('key').value;
+            const res = await fetch('/api/admin/all', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k}) });
+            const users = await res.json();
+            let h = '';
+            users.forEach(u => {
+                h += `<div class="req-card">
+                    <div class="req-user">${u.username.toUpperCase()}</div>
+                    <div class="req-amt">Amount: ₹${u.pendingBalance}</div>
+                    <div style="font-size: 12px; color: #666; margin-bottom: 15px;">Code: <span class="req-code">${u.redeemCode}</span></div>
+                    
+                    <div style="display:flex; gap: 10px;">
+                        <button onclick="app('${u._id}')" style="background:#00ff88; color:#000; text-transform: none; padding: 10px; font-size: 13px;">Approve</button>
+                        <button onclick="rej('${u._id}')" style="background:#red; color:#fff; text-transform: none; padding: 10px; font-size: 13px; box-shadow: 0 4px 15px rgba(255,0,0,0.2);">Reject</button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('list').innerHTML = h || '<div style="text-align:center; color:#555;">No pending requests.</div>';
+        }
+        async function app(id) {
+            const k = document.getElementById('key').value;
+            await fetch('/api/admin/approve-balance', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k, id}) });
+            alert("Balance Added!"); load();
+        }
+        async function rej(id) {
+            const k = document.getElementById('key').value;
+            if(confirm("Are you sure to REJECT this request?")) {
+                await fetch('/api/admin/reject-balance', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k, id}) });
+                alert("Request Rejected!"); load();
+            }
+        }
+    </script>
+</body>
+</html>
