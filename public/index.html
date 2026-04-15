@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEXI TOOL - CONTROL PANEL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@400;600&display=swap');
+        :root { --bg: #0a0b0d; --card: #15171a; --orange: #ff6a00; --border: #23262a; }
+        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; margin: 0; padding-bottom: 80px; }
+        .container { padding: 15px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+        .btn-orange { width: 100%; padding: 14px; background: linear-gradient(90deg, #ff8c00, #ff4500); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-family: 'Orbitron'; }
+        input { width: 100%; padding: 14px; margin: 10px 0; background: #1c1f24; border: 1px solid var(--border); color: white; border-radius: 10px; box-sizing: border-box; }
+        .nav-bottom { position: fixed; bottom: 0; width: 100%; background: #111317; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid var(--border); }
+        .nav-btn { color: #8e9297; text-align: center; font-size: 10px; flex: 1; cursor: pointer; }
+        .nav-btn.active { color: white; }
+        .nav-btn i { font-size: 20px; display: block; margin-bottom: 4px; }
+        .section { display: none; } .section.active { display: block; }
+        .dash-img { width: 100%; border-radius: 15px; border: 1px solid var(--orange); margin-bottom: 15px; }
+        .msg-user { text-align: right; color: var(--orange); } .msg-admin { text-align: left; color: #00ff88; }
+    </style>
+</head>
+<body>
+
+<div id="authBox" style="height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div class="card" style="width:100%; max-width:350px; text-align:center;">
+        <h2 style="font-family: Orbitron;">ZEXI LOGIN</h2>
+        <input type="text" id="u" placeholder="Email/Username">
+        <input type="password" id="p" placeholder="Password">
+        <button class="btn-orange" onclick="handleAuth()">LOGIN</button>
+    </div>
+</div>
+
+<div id="app" style="display:none;">
+    <div class="container">
+        <div id="homeSec" class="section active">
+            <img src="1000113658.jpg" class="dash-img"> <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <b>BALANCE: ₹<span id="balDisplay">0</span></b>
+                <i class="fa fa-wallet" style="color:var(--orange)"></i>
+            </div>
+            <h3>VIP SERVICES (DAILY 100 LIKES)</h3>
+            <div id="plansList"></div>
+        </div>
+
+        <div id="orderSec" class="section">
+            <h3>MY ORDERS</h3>
+            <div id="activePlansList"></div>
+        </div>
+
+        <div id="walletSec" class="section">
+            <div class="card" style="text-align:center;">
+                <img src="1000113660.jpg" style="width:200px; border-radius:10px;"> <p>Scan to Pay Any Amount</p>
+                <input type="number" id="addAmt" placeholder="Enter Amount Paid">
+                <input type="text" id="addCode" placeholder="Enter UTR Number">
+                <button class="btn-orange" onclick="submitBalance()">SUBMIT PAYMENT</button>
+            </div>
+        </div>
+
+        <div id="supportSec" class="section">
+            <div class="card" id="chatBox" style="height:300px; overflow-y:auto; font-size:12px;"></div>
+            <input type="text" id="chatMsg" placeholder="Type message for ZEXI...">
+            <button class="btn-orange" onclick="sendMessage()">SEND</button>
+        </div>
+    </div>
+
+    <div class="nav-bottom">
+        <div class="nav-btn active" onclick="tab('homeSec', this)"><i class="fa fa-home"></i>Home</div>
+        <div class="nav-btn" onclick="tab('orderSec', this)"><i class="fa fa-shopping-cart"></i>Orders</div>
+        <div class="nav-btn" onclick="tab('supportSec', this)"><i class="fa fa-comment"></i>Support</div>
+        <div class="nav-btn" onclick="tab('walletSec', this)"><i class="fa fa-wallet"></i>Wallet</div>
+    </div>
+</div>
+
+<script>
+    let curU = ""; let curP = ""; let prices = {};
+
+    async function handleAuth() {
+        const u = document.getElementById('u').value.trim(); const p = document.getElementById('p').value.trim();
+        const res = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p}) });
+        const data = await res.json();
+        if(data.success) { curU=u; curP=p; fetchPrices(); showUI(data.user); } else alert(data.msg);
+    }
+
+    async function fetchPrices() {
+        const res = await fetch('/api/settings');
+        prices = await res.json();
+        renderPlans();
+    }
+
+    function renderPlans() {
+        let pH = '';
+        const list = [{d:30, k:'p30'}, {d:60, k:'p60'}, {d:90, k:'p90'}, {d:120, k:'p120'}];
+        list.forEach(p => {
+            pH += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div><b>${p.d} DAYS VIP</b><br><small>Daily 100 Likes</small></div>
+                <button class="btn-orange" style="width:auto; padding:8px 15px;" onclick="buyPlan(${prices[p.k]}, ${p.d})">₹${prices[p.k]}</button>
+            </div>`;
+        });
+        document.getElementById('plansList').innerHTML = pH;
+    }
+
+    function showUI(user) {
+        document.getElementById('authBox').style.display='none'; document.getElementById('app').style.display='block';
+        document.getElementById('balDisplay').innerText = user.balance;
+        
+        let activeH = '';
+        user.activePlans.forEach(p => {
+            activeH += `<div class="card">
+                <b>${p.days} Days Plan (UID: ${p.uid})</b><br>
+                <small>Price: ₹${p.price} | Status: Running</small><br>
+                <small>Likes Delivered Today: ${p.totalDone}</small>
+            </div>`;
+        });
+        document.getElementById('activePlansList').innerHTML = activeH || "No orders yet.";
+
+        let chatH = '';
+        user.messages.forEach(m => {
+            chatH += `<div class="msg-${m.sender}"><b>${m.sender.toUpperCase()}:</b> ${m.text}</div>`;
+        });
+        document.getElementById('chatBox').innerHTML = chatH;
+    }
+
+    async function buyPlan(price, days) {
+        const uid = prompt("Enter FF UID:"); if(!uid) return;
+        const res = await fetch('/api/buy-likes', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:curU, price, days, uid}) });
+        const d = await res.json(); alert(d.msg); location.reload();
+    }
+
+    async function sendMessage() {
+        const text = document.getElementById('chatMsg').value;
+        await fetch('/api/support/send', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:curU, text}) });
+        location.reload();
+    }
+
+    function tab(id, el) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active'); el.classList.add('active');
+    }
+</script>
+</body>
+</html>
