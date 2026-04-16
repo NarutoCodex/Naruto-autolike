@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEXI TOOL - CONTROL PANEL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@700&display=swap');
+        :root { --bg: #0a0b0d; --card: #15171a; --orange: #ff6a00; --border: #23262a; }
+        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; margin: 0; padding-bottom: 85px; overflow-x: hidden; }
+        .container { padding: 15px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+        .btn-orange { width: 100%; padding: 14px; background: var(--orange); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; text-transform: uppercase; }
+        input, select { width: 100%; padding: 14px; margin: 10px 0; background: #1c1f24; border: 1px solid var(--border); color: white; border-radius: 10px; box-sizing: border-box; }
+        
+        /* Navigation */
+        .nav-bottom { position: fixed; bottom: 0; width: 100%; background: #111317; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid var(--border); z-index: 1000; }
+        .nav-btn { color: #8e9297; text-align: center; font-size: 10px; flex: 1; cursor: pointer; }
+        .nav-btn.active { color: white; }
+        .nav-btn i { font-size: 20px; display: block; margin-bottom: 4px; }
+        
+        .section { display: none; } .section.active { display: block; }
+        .cf-box { border: 1px solid #333; padding: 10px; border-radius: 5px; margin: 15px 0; display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div id="authBox" style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
+    <img src="https://i.ibb.co/hR4f7h9/zexi-logo.png" style="width:100px; border-radius:20px; margin-bottom:10px; border:1px solid var(--orange);">
+    <h1 style="font-family: Orbitron; font-size: 24px; margin: 5px 0;">ZEXI TOOL</h1>
+    <p style="color: #888; font-size: 10px; text-transform: uppercase;">Free Fire Bot Maker</p>
+    <div class="card" style="width:100%; max-width:350px;">
+        <div style="display:flex; background:#1c1f24; border-radius:10px; margin-bottom:15px; padding:5px;">
+            <button onclick="isLogin=true; syncAuthUI()" id="btnL" style="flex:1; border:none; padding:10px; border-radius:8px; background:var(--orange); color:white; font-weight:bold;">LOGIN</button>
+            <button onclick="isLogin=false; syncAuthUI()" id="btnS" style="flex:1; border:none; padding:10px; border-radius:8px; background:transparent; color:#888;">SIGN UP</button>
+        </div>
+        <input type="text" id="u" placeholder="Enter your email">
+        <input type="password" id="p" placeholder="Enter your password">
+        
+        <div class="cf-box">
+            <div style="display:flex; align-items:center; gap:10px;"><i class="fa fa-check-circle" style="color:#00ff88; font-size:20px;"></i><span>Success!</span></div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Cloudflare_Logo.svg" width="60">
+        </div>
+        <p style="text-align:center; font-size:10px; color:#00ff88;">Secure Encrypted Authentication</p>
+        <button class="btn-orange" onclick="handleAuth()">LOGIN</button>
+    </div>
+</div>
+
+<div id="app" style="display:none;">
+    <div class="container">
+        <div id="homeSec" class="section active">
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div><small style="color:#888;">WALLET BALANCE</small><br><b style="font-size:20px; color:var(--orange);">₹<span id="balDisplay">0</span></b></div>
+                <i class="fa fa-wallet" style="font-size:24px; color:var(--orange)"></i>
+            </div>
+            <h3 style="font-family:Orbitron; font-size:14px;">AVAILABLE PLANS</h3>
+            <div id="plansList"></div>
+        </div>
+
+        <div id="histSec" class="section">
+            <h3 style="font-family:Orbitron; margin-bottom:15px;">LIKES HISTORY</h3>
+            <div id="likesHistory"></div>
+        </div>
+
+        <div id="orderSec" class="section">
+            <h3 style="font-family:Orbitron; margin-bottom:15px;">MY ORDERS</h3>
+            <div id="ordersList"></div>
+        </div>
+
+        <div id="walletSec" class="section">
+            <div class="card" style="text-align:center;">
+                <div style="border:1px solid var(--orange); padding:8px; border-radius:10px; margin-bottom:15px;">UPI / BharatPe (India)</div>
+                <p style="font-size:12px; color:#888;">Scan OR Click QR to Pay</p>
+                <img src="https://i.ibb.co/b3pXFqR/qr-code.png" style="width:200px; border-radius:15px; background:white; padding:10px; margin:10px 0;">
+                <h1 style="font-family:Orbitron;">₹350</h1>
+                
+                <select id="payPlan"><option>Starter - ₹350</option><option>VIP - ₹600</option></select>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="redeemCode" placeholder="ENTER CODE" style="flex:2;">
+                    <button class="btn-orange" style="flex:1; padding:0;" onclick="alert('Redeem code applied!')">Apply</button>
+                </div>
+                <input type="text" id="payUtr" placeholder="ENTER UTR (12+) OR TXID">
+                <p style="font-size:10px; color:#666;">Enter 12-digit UTR or Binance TxID after payment</p>
+                <button class="btn-orange" onclick="submitPayment()">SUBMIT PAYMENT</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-bottom">
+        <div class="nav-btn active" onclick="tab('homeSec', this)"><i class="fa fa-layer-group"></i>Home</div>
+        <div class="nav-btn" onclick="tab('histSec', this)"><i class="fa fa-history"></i>History</div>
+        <div class="nav-btn" onclick="tab('homeSec', this)"><i class="fa fa-comment-dots"></i>Support</div>
+        <div class="nav-btn" onclick="tab('orderSec', this)"><i class="fa fa-box"></i>Orders</div>
+        <div class="nav-btn" onclick="tab('walletSec', this)"><i class="fa fa-wallet"></i>Wallet</div>
+    </div>
+</div>
+
+<script>
+    let isLogin = true; let user = null;
+    const availablePlans = [{d:30,p:100,n:"30 Days VIP"},{d:60,p:200,n:"60 Days VIP"},{d:90,p:300,n:"90 Days VIP"},{d:120,p:400,n:"120 Days VIP"}];
+
+    function syncAuthUI() {
+        document.getElementById('btnL').style.background = isLogin ? 'var(--orange)' : 'transparent';
+        document.getElementById('btnS').style.background = !isLogin ? 'var(--orange)' : 'transparent';
+    }
+
+    async function handleAuth() {
+        const u = document.getElementById('u').value.trim(); const p = document.getElementById('p').value.trim();
+        const res = await fetch(`/api/auth/${isLogin?'login':'signup'}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p}) });
+        const data = await res.json();
+        if(data.success) { if(isLogin) { user = data.user; syncUI(); } else { alert("Done!"); isLogin=true; syncAuthUI(); } } else alert(data.msg);
+    }
+
+    function syncUI() {
+        document.getElementById('authBox').style.display='none'; document.getElementById('app').style.display='block';
+        document.getElementById('balDisplay').innerText = user.balance;
+        
+        let pH = '';
+        availablePlans.forEach(p => {
+            pH += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div><b>${p.n}</b><br><small style="color:#666;">Daily 100 Likes Delivery</small></div>
+                <button class="btn-orange" style="width:auto; padding:8px 15px;" onclick="buyPlan(${p.p}, ${p.d}, '${p.n}')">₹${p.p}</button>
+            </div>`;
+        });
+        document.getElementById('plansList').innerHTML = pH;
+
+        let oH = ''; (user.activePlans || []).forEach(o => {
+            oH += `<div class="card" style="border-left: 4px solid var(--orange);"><b>${o.planName}</b><br><small>UID: ${o.uid} | Price: Running</small></div>`;
+        });
+        document.getElementById('ordersList').innerHTML = oH || "<p style='text-align:center; color:#666;'>No active orders.</p>";
+    }
+
+    async function buyPlan(price, days, name) {
+        if(user.balance < price) return alert("Low Balance! Please add balance in Wallet.");
+        const uid = prompt("Enter FF UID:"); if(!uid) return;
+        const res = await fetch('/api/buy-plan', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:user.username, price, days, uid, planName:name}) });
+        const d = await res.json(); if(d.success) { user = d.user; syncUI(); alert(d.msg); }
+    }
+
+    async function submitPayment() {
+        const amt = document.getElementById('payPlan').value.split('₹')[1];
+        const utr = document.getElementById('payUtr').value;
+        const redeem = document.getElementById('redeemCode').value;
+        await fetch('/api/add-balance', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:user.username, amount:amt, utr:utr, redeem:redeem}) });
+        alert("Payment Sent to Admin!");
+    }
+
+    function tab(id, el) { 
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); 
+        document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active')); 
+        document.getElementById(id).classList.add('active'); el.classList.add('active'); 
+    }
+</script>
+</body>
+</html>

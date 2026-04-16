@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ZEXI ADMIN TERMINAL</title>
+    <style>
+        body { background:#0a0b0d; color:#ff6a00; padding:20px; font-family:sans-serif; }
+        .card { background:#15171a; padding:15px; border-radius:12px; border:1px solid #23262a; margin-bottom:15px; }
+        button { background:#ff6a00; color:white; border:none; padding:12px; border-radius:8px; cursor:pointer; font-weight:600; margin-right:10px; }
+        .tab-content { display:none; } .tab-content.active { display:block; }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center; font-family:Orbitron;">ZEXI SYSTEM ADMIN</h2>
+    <input type="password" id="key" placeholder="ADMIN KEY" style="width:100%; padding:14px; background:#1c1f24; color:white; border:1px solid #333; border-radius:10px;">
+    
+    <div style="display:flex; margin:20px 0;">
+        <button onclick="showTab('userTab')">USERS LIST</button>
+        <button onclick="showTab('payTab')">PAYMENTS REQUEST</button>
+    </div>
+
+    <div id="userTab" class="tab-content">
+        <h3>User Database (ID & Pass)</h3>
+        <div id="uList"></div>
+    </div>
+
+    <div id="payTab" class="tab-content">
+        <h3>Pending Recharge / Redeem</h3>
+        <div id="pList"></div>
+    </div>
+
+    <script>
+        async function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            const k = document.getElementById('key').value;
+            
+            if(tabId === 'userTab') {
+                const res = await fetch('/api/admin/users', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k}) });
+                const data = await res.json();
+                let h = ''; data.forEach(u => {
+                    h += `<div class="card"><b>ID:</b> ${u.username} | <b>Pass:</b> <span style="color:white;">${u.password}</span> | <b>Bal:</b> ₹${u.balance} <button onclick="act('${u._id}','ban')" style="background:red; padding:5px;">BAN</button></div>`;
+                });
+                document.getElementById('uList').innerHTML = h;
+            } else {
+                const res = await fetch('/api/admin/pending', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k}) });
+                const data = await res.json();
+                let h = ''; data.forEach(u => {
+                    u.pendingPayments.forEach(p => {
+                        h += `<div class="card"><b>User:</b> ${u.username} | <b>Amt:</b> ₹${p.amount} | <b>UTR:</b> ${p.utr} | <b>Redeem:</b> ${p.redeem || 'N/A'}<br><br>
+                        <button onclick="pay('${u._id}','approve','${p.amount}','${p.utr}')" style="background:green;">APPROVE</button></div>`;
+                    });
+                });
+                document.getElementById('pList').innerHTML = h || "No requests.";
+            }
+        }
+        async function act(id, action) {
+            const k = document.getElementById('key').value;
+            await fetch('/api/admin/action', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k, id, action}) });
+            alert("Done!"); showTab('userTab');
+        }
+        async function pay(id, action, amount, utr) {
+            const k = document.getElementById('key').value;
+            await fetch('/api/admin/action', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({adminKey:k, id, action, amount, utr}) });
+            alert("Balance Added!"); showTab('payTab');
+        }
+    </script>
+</body>
+</html>
